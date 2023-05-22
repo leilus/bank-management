@@ -1,88 +1,128 @@
-﻿// bank.cpp : Ten plik zawiera funkcję „main”. W nim rozpoczyna się i kończy wykonywanie programu.
-//
-
+﻿
 #include <iostream>
 #include<fstream>
 using namespace std;
 
 
-
-void isRegisteredUser(){
-    ofstream file("dane.txt");
+void isRegisteredUser() {
+    ofstream file("dane.txt", ios::app);
     if (file.is_open()) {
         string username, password;
-        cout << "Wprowadź swoje dane\nNazwa użytkownika: ";
+        cout << "Wprowadz swoje dane\nNazwa uzytkownika: ";
         cin >> username;
-        cout << "Hasło: ";
+        cout << "Haslo: ";
         cin >> password;
-        file << username << password;
+        file << username << " " << password << endl;
+            file.close();
+            cout << "Uzytkownik zarejestrowany";
+        }
+    else{
+        cout << "Nie udalo sie zarejestrowac";
+    }
+    
+
+}
+void isRegisteredAdmin() {
+    ofstream file("adminDane.txt", ios::app);
+    ifstream plik("code.txt");
+
+    if (file.is_open()) {
+        if (plik.is_open()) {
+            int attemptCount = 1;
+            int limit = 3;
+            string codeNumber, username, password, storedCode;
+            cout << "Wprowadz kod rejestracji";
+            cin >> codeNumber;
+
+            while (plik >> storedCode) {
+            while (attemptCount < limit) {
+                    if (codeNumber == storedCode) {
+                        cout << "Wprowadz swoje dane\nNazwa uzytkownika: ";
+                        cin >> username;
+                        cout << "Haslo: ";
+                        cin >> password;
+                        attemptCount = 3;
+                        file << username << " " << password << endl;
+                        cout << "Administrator zarejestrowany";
+                        file.close();
+                        plik.close();
+                    }
+
+                    else if (codeNumber != storedCode) {
+                        attemptCount++;
+                        cout << "Wprowadz kod ponownie";
+                        cin >> codeNumber;
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+bool isLoggedUser() {
+    ifstream file("dane.txt");
+    if (file.is_open()) {
+        string username, password;
+        cout << "Podaj login: ";
+        cin >> username;
+        cout << "Podaj haslo: ";
+        cin >> password;
+
+        string storedUsername, storedPassword;
+
+        while (file >> storedUsername >> storedPassword) {
+            if (username == storedUsername && password == storedPassword) {
+                file.close();
+                cout << "Udalo sie zalogowac";
+                return true;
+            }
+        }
+        cout << "Nie udalo sie zalogowac";
         file.close();
+        return false;
     }
+}
 
-    }
-    void isRegisteredAdmin () {
-        int attemptCount = 0;
-        int limit = 3;
-        int codeNumber;
-        string username;
-        string password;
-        cout << "Wprowadź kod rejestracji";
-        cin >> codeNumber;
+bool isLoggedAdmin() {
+    ifstream file("adminDane.txt");
+    if (file.is_open()) {
+        string username, password;
+        cout << "Podaj login: ";
+        cin >> username;
+        cout << "Podaj haslo: ";
+        cin >> password;
 
-        while (attemptCount < limit) {
-            if (codeNumber == 123) {
-                cout << "Wprowadź swoje dane\nNazwa użytkownika: ";
-                cin >> username;
-                cout << "Hasło: ";
-                cin >> password;
-                attemptCount = 3;
+        string storedUsername, storedPassword;
+
+        while (file >> storedUsername >> storedPassword) {
+            if (username == storedUsername && password == storedPassword) {
+                file.close();
+                cout << "Udalo sie zalogowac ";
+                return true;
             }
-            else if(codeNumber != 123){
-                attemptCount++;
-                cout << "Wprowadź kod ponownie";
-                cin >> codeNumber;
-            }
-        }
-        
-    }
-
-    bool isLoggedUser () {
-        ifstream file("dane.txt");
-        if (file.is_open()) {
             
-            string username, password;
-            cout << "Podaj login";
-            cin >> username;
-            cout << "Podaj hasło";
-            cin >> password;
-
-            string storedUsername, storedPassword;
-
-            while (file >> storedUsername >> storedPassword) {
-                if (username == storedUsername && password == storedPassword) {
-                    file.close();
-                    return true;
-                }
-                else {
-                    cout << "Logowanie nie powiodło się";
-                }
-            }
-         
         }
-       
+        cout << "Nie udalo sie zalogowac ";
+        return false;
     }
+    else {
+        cout << "Blad pliku";
+    }
+}
 
 
 int main()
 {
+   
     int type;
     int account;
-    cout << "Witaj na naszym profilu bankowym (1 - Rejestracja, 2 - Logowanie, 3 - Wypłacanie pieniędzy, 4 - Wpłacanie pieniędzy)";
+    cout << "Witaj na naszym profilu bankowym (1 - Rejestracja, 2 - Logowanie, 3 - Wyplacanie pieniedzy, 4 - Wplacanie pieniedzy)";
     cin >> account;
 
     switch (account) {
     case 1:
-        cout << "<1>Rejestracja użytkownika\n<2>Rejestracja administratora";
+        cout << "(1)Rejestracja uzytkownika\n(2)Rejestracja administratora\n";
         cin >> type;
         if (type == 1) {
             isRegisteredUser();
@@ -91,12 +131,17 @@ int main()
             isRegisteredAdmin();
         }
         else {
-            cout << "Proszę wprowadzić prawidłowy wybór";
+            cout << "Prosze wprowadzic prawidlowy wybor";
             cin >> type;
         }
         break;
     case 2:
-        isLoggedUser();
+        cout << "(1)Logowanie uzytkownika\n(2)Logowanie administratora\n";
+        cin >> type;
+        if (type == 1)
+            isLoggedUser();
+        else if (type == 2)
+            isLoggedAdmin();
         break;
 
     }
