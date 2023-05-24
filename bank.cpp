@@ -1,8 +1,15 @@
-﻿
-#include <iostream>
+﻿#include <iostream>
 #include<fstream>
+#include <dos.h>
+#include <conio.h>
 using namespace std;
 
+#ifdef __unix__
+# include <unistd.h>
+#elif defined _WIN32
+# include <windows.h>
+#define sleep(x) Sleep(1000 * (x))
+#endif
 
 void isRegisteredUser() {
     ofstream file("dane.txt", ios::app);
@@ -14,7 +21,7 @@ void isRegisteredUser() {
         cin >> password;
         file << username << " " << password << endl;
             file.close();
-            cout << "Uzytkownik zarejestrowany";
+            cout << "Uzytkownik zarejestrowany!\nMozesz teraz sie zalogowac!\n";
         }
     else{
         cout << "Nie udalo sie zarejestrowac";
@@ -41,6 +48,7 @@ void isRegisteredAdmin() {
                         cin >> username;
                         cout << "Haslo: ";
                         cin >> password;
+
                         attemptCount = 3;
                         file << username << " " << password << endl;
                         cout << "Administrator zarejestrowany";
@@ -60,7 +68,8 @@ void isRegisteredAdmin() {
     }
 }
 
-bool isLoggedUser() {
+bool isLoggedUser(bool loggedIn = false) {
+    int type;
     ifstream file("dane.txt");
     if (file.is_open()) {
         string username, password;
@@ -74,8 +83,9 @@ bool isLoggedUser() {
         while (file >> storedUsername >> storedPassword) {
             if (username == storedUsername && password == storedPassword) {
                 file.close();
-                cout << "Udalo sie zalogowac";
+                cout << "Zalogowano pomyslnie! Witaj " << storedUsername << "! ";
                 return true;
+                loggedIn = true;
             }
         }
         cout << "Nie udalo sie zalogowac";
@@ -112,37 +122,64 @@ bool isLoggedAdmin() {
 }
 
 
+void isDeposit() {
+    ofstream money("money.txt");
+    if (money.is_open()) {
+        int moneyAmmount;
+        cout << "Witaj! Prosze podaj ilosc pieniedzy do wplacenia\n";
+        cin >> moneyAmmount;
+        cout.flush();
+        sleep(2);
+        cout << "Przelew zostal pozytywnie wykonany.\n";
+        money << moneyAmmount;
+       
+    }
+}
+
 int main()
 {
    
     int type;
     int account;
-    cout << "Witaj na naszym profilu bankowym (1 - Rejestracja, 2 - Logowanie, 3 - Wyplacanie pieniedzy, 4 - Wplacanie pieniedzy)";
-    cin >> account;
+    bool session = false;
+    while (!session) {
+        cout << "Witaj na naszym profilu bankowym (1 - Rejestracja, 2 - Logowanie, 3 - Wyplacanie pieniedzy, 4 - Wplacanie pieniedzy)";
+        cin >> account;
 
-    switch (account) {
-    case 1:
-        cout << "(1)Rejestracja uzytkownika\n(2)Rejestracja administratora\n";
-        cin >> type;
-        if (type == 1) {
-            isRegisteredUser();
-        }
-        else if (type == 2) {
-            isRegisteredAdmin();
-        }
-        else {
-            cout << "Prosze wprowadzic prawidlowy wybor";
+        switch (account) {
+        case 1:
+            cout << "(1)Rejestracja uzytkownika\n(2)Rejestracja administratora\n";
             cin >> type;
+            if (type == 1) {
+                isRegisteredUser();
+            }
+            else if (type == 2) {
+                isRegisteredAdmin();
+            }
+            else {
+                cout << "Prosze wprowadzic prawidlowy wybor";
+                cin >> type;
+            }
+            break;
+        case 2:
+            cout << "(1)Logowanie uzytkownika\n(2)Logowanie administratora\n";
+            cin >> type;
+            if (type == 1) {
+                isLoggedUser();
+            }
+            else if (type == 2) {
+                isLoggedAdmin();
+                session = true;
+            }
+            break;
+        case 4:
+            if (isLoggedUser(true)) {
+                isDeposit();
+            }
+            else {
+                cout << "Prosze sie zalogowac!";
+            }
+            break;
         }
-        break;
-    case 2:
-        cout << "(1)Logowanie uzytkownika\n(2)Logowanie administratora\n";
-        cin >> type;
-        if (type == 1)
-            isLoggedUser();
-        else if (type == 2)
-            isLoggedAdmin();
-        break;
-
     }
 }
