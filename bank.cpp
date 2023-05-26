@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿
+#include <iostream>
 #include<fstream>
 #include <dos.h>
 #include <conio.h>
@@ -10,6 +11,10 @@ using namespace std;
 # include <windows.h>
 #define sleep(x) Sleep(1000 * (x))
 #endif
+using namespace std;
+
+
+bool loggedIn = false;
 
 void isRegisteredUser() {
     ofstream file("dane.txt", ios::app);
@@ -20,13 +25,13 @@ void isRegisteredUser() {
         cout << "Haslo: ";
         cin >> password;
         file << username << " " << password << endl;
-            file.close();
-            cout << "Uzytkownik zarejestrowany!\nMozesz teraz sie zalogowac!\n";
-        }
-    else{
+        file.close();
+        cout << "Uzytkownik zarejestrowany!\nMozesz teraz sie zalogowac!\n";
+    }
+    else {
         cout << "Nie udalo sie zarejestrowac";
     }
-    
+
 
 }
 void isRegisteredAdmin() {
@@ -42,7 +47,7 @@ void isRegisteredAdmin() {
             cin >> codeNumber;
 
             while (plik >> storedCode) {
-            while (attemptCount < limit) {
+                while (attemptCount < limit) {
                     if (codeNumber == storedCode) {
                         cout << "Wprowadz swoje dane\nNazwa uzytkownika: ";
                         cin >> username;
@@ -68,8 +73,9 @@ void isRegisteredAdmin() {
     }
 }
 
-bool isLoggedUser(bool loggedIn = false) {
-    int type;
+
+
+bool isLoggedUser () {
     ifstream file("dane.txt");
     if (file.is_open()) {
         string username, password;
@@ -85,12 +91,12 @@ bool isLoggedUser(bool loggedIn = false) {
                 file.close();
                 cout << "Zalogowano pomyslnie! Witaj " << storedUsername << "! ";
                 return true;
-                loggedIn = true;
+               
             }
         }
-        cout << "Nie udalo sie zalogowac";
+        loggedIn = true;
         file.close();
-        return false;
+
     }
 }
 
@@ -111,7 +117,7 @@ bool isLoggedAdmin() {
                 cout << "Udalo sie zalogowac ";
                 return true;
             }
-            
+
         }
         cout << "Nie udalo sie zalogowac ";
         return false;
@@ -122,26 +128,67 @@ bool isLoggedAdmin() {
 }
 
 
-void isDeposit() {
-    ofstream money("money.txt");
-    if (money.is_open()) {
+    void isDeposit() {
+        if (loggedIn = true) {
+
+        ofstream money("money.txt", ios::app);
+        ifstream moneyRead("money.txt");
         int moneyAmmount;
-        cout << "Witaj! Prosze podaj ilosc pieniedzy do wplacenia\n";
-        cin >> moneyAmmount;
-        cout.flush();
-        sleep(2);
-        cout << "Przelew zostal pozytywnie wykonany.\n";
-        money << moneyAmmount;
-       
+        int value;
+        int totalMoney = 0;
+        int choice;
+        int second_choice;
+
+
+        if (moneyRead.is_open()) {
+            int value;
+            while (moneyRead >> value) {
+                totalMoney += value;
+            }
+            moneyRead.close();
+        }
+
+
+
+        cout << "Witaj!\n(1)Wplata\n(2)Przerwij operacje\n";
+        cin >> choice;
+        if (choice == 1) {
+            if (money.is_open()) {
+                cout << "Wprowadz liczbe pieniedzy do wplacenia: ";
+                cin >> moneyAmmount;
+                money << moneyAmmount << endl;
+                cout.flush();
+                sleep(3);
+                cout << "Pomyslnie dokonano wplaty!\n";
+                money.close();
+
+                cout << "Czy chcesz sprawdzic stan swojego konta?\n(1)Tak\n(2)Nie\n";
+                cin >> second_choice;
+                if (second_choice == 1) {
+                    cout << "Twoj stan konta wynosi: " << totalMoney << endl;
+                }
+                else if (second_choice == 2) {
+                    cout.flush();
+                    sleep(2);
+                }
+
+            }
+            else if (choice == 2) {
+                cout.flush();
+                sleep(2);
+            }
+        }
+
+
     }
 }
-
 int main()
 {
-   
+
     int type;
     int account;
     bool session = false;
+
     while (!session) {
         cout << "Witaj na naszym profilu bankowym (1 - Rejestracja, 2 - Logowanie, 3 - Wyplacanie pieniedzy, 4 - Wplacanie pieniedzy)";
         cin >> account;
@@ -173,11 +220,12 @@ int main()
             }
             break;
         case 4:
-            if (isLoggedUser(true)) {
+            if (!loggedIn){
                 isDeposit();
             }
             else {
                 cout << "Prosze sie zalogowac!";
+                isLoggedUser();
             }
             break;
         }
