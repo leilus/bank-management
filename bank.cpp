@@ -1,4 +1,5 @@
-﻿#include <iostream>
+
+#include <iostream>
 #include<fstream>
 #include <dos.h>
 #include <conio.h>
@@ -10,6 +11,8 @@ using namespace std;
 # include <windows.h>
 #define sleep(x) Sleep(1000 * (x))
 #endif
+using namespace std;
+
 
 void isRegisteredUser() {
     ofstream file("dane.txt", ios::app);
@@ -20,13 +23,13 @@ void isRegisteredUser() {
         cout << "Haslo: ";
         cin >> password;
         file << username << " " << password << endl;
-            file.close();
-            cout << "Uzytkownik zarejestrowany!\nMozesz teraz sie zalogowac!\n";
-        }
-    else{
+        file.close();
+        cout << "Uzytkownik zarejestrowany!\nMozesz teraz sie zalogowac!\n";
+    }
+    else {
         cout << "Nie udalo sie zarejestrowac";
     }
-    
+
 
 }
 void isRegisteredAdmin() {
@@ -42,7 +45,7 @@ void isRegisteredAdmin() {
             cin >> codeNumber;
 
             while (plik >> storedCode) {
-            while (attemptCount < limit) {
+                while (attemptCount < limit) {
                     if (codeNumber == storedCode) {
                         cout << "Wprowadz swoje dane\nNazwa uzytkownika: ";
                         cin >> username;
@@ -111,7 +114,7 @@ bool isLoggedAdmin() {
                 cout << "Udalo sie zalogowac ";
                 return true;
             }
-            
+
         }
         cout << "Nie udalo sie zalogowac ";
         return false;
@@ -123,22 +126,36 @@ bool isLoggedAdmin() {
 
 
 void isDeposit() {
-    ofstream money("money.txt");
-    if (money.is_open()) {
-        int moneyAmmount;
-        cout << "Witaj! Prosze podaj ilosc pieniedzy do wplacenia\n";
-        cin >> moneyAmmount;
-        cout.flush();
-        sleep(2);
-        cout << "Przelew zostal pozytywnie wykonany.\n";
-        money << moneyAmmount;
-       
-    }
-}
+    ofstream money("money.txt", ios::app);
+    ifstream moneyRead("money.txt");
+    
+    int moneyAmmount;
 
+    if (money.is_open()) {
+        cout << "Witaj, prosze wprowadzic ilosc pieniedzy do wplacenia ";
+        cin >> moneyAmmount;
+        money << moneyAmmount << endl;
+        money.close();
+        
+    }
+  
+    int value;
+    int totalMoney = 0;
+    if (moneyRead.is_open()) {
+        int value;
+        while (moneyRead >> value) {
+            totalMoney += value;
+        }
+        moneyRead.close();
+   }
+
+    cout << totalMoney;
+
+  
+}
 int main()
 {
-   
+
     int type;
     int account;
     bool session = false;
@@ -173,12 +190,7 @@ int main()
             }
             break;
         case 4:
-            if (isLoggedUser(true)) {
-                isDeposit();
-            }
-            else {
-                cout << "Prosze sie zalogowac!";
-            }
+            isDeposit();
             break;
         }
     }
